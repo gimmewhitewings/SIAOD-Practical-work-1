@@ -5,22 +5,24 @@
 
 using namespace std;
 
+long arr[1000];
 int n = 0;
 
-void create(long* arr, int n); //Заполнение динамического массива
+void create(long* arr, int n); //Создаем новый массив (из большого массива просто берем часть длиной n)
 void show(long* arr, int n);//Вывод масссива на экран
-long* insert_after(long* arr, int &n);
-long* deleting(long* arr, int &n);
+void insert_after(long* arr, int &n);
+void deleting(long* arr, int &n);
 bool all_digits_divisibility(int number);
 bool div3(int number);
 void show_index(long* arr, int n);
+void del_even(long* arr, int& n);
 
 int main() {
 	setlocale(LC_ALL, "Russian");
 	string stop = "\n----------------------------------------------------------------------------\n";
 	int problem, flag = 1;
-	int element = 0;
-	long* arr = NULL;
+	int index;
+	int element;
 
 	while (flag)
 	{
@@ -34,33 +36,33 @@ int main() {
 			"4) Найти индекс элемента массива значение которого делится на каждую из цифр числа.\n"
 			"5) Вставить в массив новый элемент после элемента, значение которого делится на каждую цифру значения.\n"
 			"6) Удалить из массива все элементы, кратные трём.\n"
-			"7) Выход из программы.\n";
+			"7) Выход из программы.\n"
+			"8) Удалить из массива все чётные элементы\n";
 		cout << "Ваш выбор: ";
 		cin >> problem; //Ввод задания
 		switch (problem) {
 		case 1:
+			
 			cout << "Введите количество элементов в массиве: ";
 			cin >> n;
-			while (n < 1)
+			while (n < 1 || n > 1000)
 			{
-				cout << "Длина массива не должна быть меньше 1. Пожалуйста, попробуйте ещё раз.\n";
+				cout << "Длина массива не должна быть меньше 1 или больше 1000. Пожалуйста, попробуйте ещё раз.\n";
 				cin.clear();
 				cin.ignore();
 				cout << "Введите количество элементов в массиве: ";
 				cin >> n;
 			}
-			arr = new long[n];
 			cout << "Введите элементы массива: ";
 			create(arr, n);
 			system("pause"); //Ставит программу на паузу, пока не будет нажата клавиша
 			break;
 		case 2:
-			cout << "Вывод массива.\n";
+			cout << "Вывод массива \n";
 			show(arr, n);
 			system("pause");
 			break;
 		case 3:
-			delete[] arr;
 			n = 0;
 			cout << "Массив сброшен.\n";
 			system("pause");
@@ -70,11 +72,11 @@ int main() {
 			system("pause");
 			break;
 		case 5:
-			arr = insert_after(arr, n);
+			insert_after(arr, n);
 			system("pause");
 			break;
 		case 6:
-			arr = deleting(arr, n);
+			deleting(arr, n);
 			show(arr, n);
 			system("pause");
 			break;
@@ -82,13 +84,17 @@ int main() {
 			cout << "Спасибо, до свидания!" << stop;
 			flag = 0;
 			break;
+		case 8:
+			del_even(arr, n);
+			show(arr, n);
+			system("pause");
+			break;
 		default:
 			cout << "Извините, я не совсем понимаю, что вы хотите сделать. Попробуйте в другой раз." << stop;
 			system("pause");
 		}
 	}
 }
-
 
 void create(long* arr, int n)
 {
@@ -110,7 +116,7 @@ void show(long* arr, int n)
 	}
 }
 
-long* insert_after(long* arr, int &n)
+void insert_after(long* arr, int &n)
 {
 	if (n == 0)
 	{
@@ -131,21 +137,18 @@ long* insert_after(long* arr, int &n)
 			int element;
 			cout << "Введите значение нового элемента: ";
 			cin >> element;
-			arr = (long*)realloc(arr, (n + 1) * sizeof(long));
-			n++;
-			for (int i = n; i > index + 1; i--) {
-				arr[i] = arr[i - 1];
+			for (int i = n - 1; i > index; i--) {
+				arr[i + 1] = arr[i];
 			}
 			arr[index + 1] = element;
+			n++;
 			show(arr, n);
 		}
 		else
 		{
 			cout << "В массиве не нашлось элемента, значение которого делится на каждую цифру значения.\n";
-
 		}
 	}
-	return arr;
 }
 
 bool all_digits_divisibility(int number)
@@ -177,6 +180,26 @@ bool div3(int number)
 	return false;
 }
 
+void del_even(long* arr, int& n)
+{
+	if (n == 0)
+	{
+		cout << "Не удалось выполнить операцию, так как массив пуст.\n";
+	}
+	else
+	{
+		for (int i = 0; i < n; i++)
+		{
+			if (arr[i] % 2 == 0)
+			{
+				arr[i] = arr[i + 1];
+				n--;
+				i--;
+			}
+		}
+		cout << "Из массива удалены все чётные элементы.\n";
+	}
+}
 
 void show_index(long* arr, int n)
 {
@@ -200,9 +223,10 @@ void show_index(long* arr, int n)
 			cout << "Индекс элемента массива значение которого делится на каждую из цифр числа: " << index << endl;
 		}
 	}
+	
 }
 
-long* deleting(long* arr, int &n)
+void deleting(long* arr, int &n)
 {
 	if (n == 0)
 	{
@@ -210,27 +234,18 @@ long* deleting(long* arr, int &n)
 	}
 	else
 	{
-		if (arr != NULL)
+		for (int i = 0; i < n; i++)
 		{
-			for (int i = 0; i < n; i++)
+			if (div3(arr[i]))
 			{
-				if (div3(arr[i]))
+				for (int j = i; j < n; j++)
 				{
-					for (int j = i; j < n; j++)
-					{
-						arr[j] = arr[j + 1];
-					}
-					arr = (long*)realloc(arr, (n - 1) * sizeof(long));
-					n--;
-					i--;
+					arr[j] = arr[j + 1];
 				}
+				n--;
+				i--;
 			}
 		}
 		cout << "Из массива удалены все элементы, кратные трём.\n";
 	}
-	if (n != 0)
-	{
-		return arr;
-	}
-	return NULL;
 }
